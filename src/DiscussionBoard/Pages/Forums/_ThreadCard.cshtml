@@ -1,0 +1,6 @@
+﻿@model DiscussionBoard.Models.DiscussionThread
+
+<div>
+    <h5><a asp-page="/Discussions/Details" asp-route-threadId="@Model.Id">@Model.Title</a></h5>
+    <p>@Model.Content</p>
+</div>

@@ -38,6 +38,10 @@ namespace DiscussionBoard
                     options.SignIn.RequireConfirmedAccount = !builder.Environment.IsDevelopment())
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+            builder.Services.AddScoped<ForumService>();
+            builder.Services.AddScoped<DiscussionThreadService>();
+            builder.Services.AddScoped<PostService>();
+
             builder.Services.AddRazorPages();
 
             builder.Services.AddSingleton<ILogReader, JsonLogReader>();
