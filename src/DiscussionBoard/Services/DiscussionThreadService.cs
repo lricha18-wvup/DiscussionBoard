@@ -32,7 +32,7 @@ namespace DiscussionBoard.Services
 
         public async Task<List<DiscussionThread>> GetForForumAsync(int forumId)
         {
-            return await _discussionThreadContext.DiscussionThreads.Where(d => d.ForumId == forumId && !d.IsDeleted).ToListAsync();
+            return await _discussionThreadContext.DiscussionThreads.Include(t => t.ApplicationUser).Where(d => d.ForumId == forumId && !d.IsDeleted).ToListAsync();
         }
 
         public async Task AddAsync(DiscussionThread thread)

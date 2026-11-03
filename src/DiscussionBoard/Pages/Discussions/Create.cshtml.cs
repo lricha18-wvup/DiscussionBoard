@@ -1,11 +1,13 @@
 ﻿using System.Security.Claims;
 using DiscussionBoard.Models;
 using DiscussionBoard.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace DiscussionBoard.Pages.Discussions
 {
+    [Authorize]
     public class Create : PageModel
     {
         [BindProperty(SupportsGet = true)]

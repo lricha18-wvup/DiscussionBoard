@@ -1,7 +1,9 @@
+using System.Net.Http.Headers;
 using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
 using DiscussionBoard.Data;
 using DiscussionBoard.Models;
+using DiscussionBoard.Tests.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
@@ -16,15 +18,24 @@ namespace DiscussionBoard.Tests.DatabaseAndUI
         [Fact(DisplayName = "Discussion page - replies are nested under their immediate parent posts")]
         public async Task RepliesAreNestedUnderTheirImmediateParentPosts()
         {
-            await using var connection = new SqliteConnection("Data Source=:memory:");
-            await connection.OpenAsync(TestContext.Current.CancellationToken);
+            // await using var connection = new SqliteConnection("Data Source=:memory:");
+            // await connection.OpenAsync(TestContext.Current.CancellationToken);
+            //
+            // await using var factory = new TestWebFactory(connection);
+            // using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+            // {
+            //     AllowAutoRedirect = false,
+            //     BaseAddress = new Uri("https://localhost")
+            // });
 
-            await using var factory = new TestWebFactory(connection);
-            using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
-            {
-                AllowAutoRedirect = false,
-                BaseAddress = new Uri("https://localhost")
-            });
+            //copying the pattern in other tests to get this to pass
+            //replacing TestWebFactory with the AuthenticationWebTestFactory since discussions are required with authentication
+            await using var factory = new AuthenticationWebTestFactory(enableTestUser: true);
+            await factory.InitializeDatabaseAsync();
+
+            string testUserId = Guid.NewGuid().ToString();
+            using var client = factory.AuthenticatedClient(testUserId);
+
 
             int threadId;
             int parentAId;
@@ -38,7 +49,8 @@ namespace DiscussionBoard.Tests.DatabaseAndUI
                 var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 await db.Database.EnsureCreatedAsync(TestContext.Current.CancellationToken);
 
-                var user = new ApplicationUser { Id = Guid.NewGuid().ToString(), UserName = "nested-test" };
+                // var user = new ApplicationUser { Id = Guid.NewGuid().ToString(), UserName = "nested-test" };
+                var user = new ApplicationUser { Id = testUserId, UserName = "PleaseWork", DisplayName = "Please Pass Test User" };
                 var forum = new Forum { Name = "Hierarchy test forum" };
                 db.Users.Add(user);
                 db.Forums.Add(forum);

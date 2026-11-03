@@ -1,6 +1,24 @@
-﻿@model DiscussionBoard.Models.DiscussionThread
+﻿
+@using DiscussionBoard.Services
+@model DiscussionBoard.Models.DiscussionThread
 
-<div>
+
+@{
+    var author = Model.ApplicationUser;
+    string displayName = string.IsNullOrWhiteSpace(author?.DisplayName) ? "Unconfigured User" : author.DisplayName;
+
+
+    string avatarPath = !string.IsNullOrEmpty(author?.AvatarId)
+        ? AvatarCatalog.ImagePath(author.AvatarId)
+        : AvatarCatalog.ImagePath("default");
+}
+
+<article class="card p-3 mb-3">
+    <div class="d-flex align-items-center mb-2">
+        <img src="@avatarPath" alt="@displayName's avatar" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;" />
+        <span class="fw-bold">@displayName</span>
+    </div>
+
     <h5><a asp-page="/Discussions/Details" asp-route-threadId="@Model.Id">@Model.Title</a></h5>
-    <p>@Model.Content</p>
-</div>
+    <p class="mb-0">@Model.Content</p>
+</article>

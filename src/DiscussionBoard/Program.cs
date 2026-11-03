@@ -37,10 +37,17 @@ namespace DiscussionBoard
             builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
                     options.SignIn.RequireConfirmedAccount = !builder.Environment.IsDevelopment())
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Identity/Account/Login";
+            });
 
             builder.Services.AddScoped<ForumService>();
             builder.Services.AddScoped<DiscussionThreadService>();
             builder.Services.AddScoped<PostService>();
+            builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+
+
 
             builder.Services.AddRazorPages();
 

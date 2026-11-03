@@ -1,12 +1,14 @@
 ﻿using System.Security.Claims;
 using DiscussionBoard.Models;
 using DiscussionBoard.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace DiscussionBoard.Pages.Discussions
 {
-   public class Details : PageModel
+    [Authorize]
+public class Details : PageModel
     {
         private readonly DiscussionThreadService _threadService;
         private readonly PostService _postService;
@@ -39,6 +41,11 @@ namespace DiscussionBoard.Pages.Discussions
 
         public async Task<IActionResult> OnPostReplyAsync(int threadId)
         {
+            if (User.Identity?.IsAuthenticated != true)
+            {
+                return Unauthorized();
+            }
+
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null)
             {

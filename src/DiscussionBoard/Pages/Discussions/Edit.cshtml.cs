@@ -21,10 +21,6 @@ namespace DiscussionBoard.Pages.Discussions
         [BindProperty]
         public EditModel Input { get; set; } = new();
 
-        public void OnGet()
-        {
-
-        }
         public async Task<IActionResult> OnGetAsync(int id)
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
@@ -52,7 +48,7 @@ namespace DiscussionBoard.Pages.Discussions
 
             if (existing == null || existing.ApplicationUserId != userId)
             {
-                return NotFound();
+                return Challenge();
             }
 
             var thread = new DiscussionThread

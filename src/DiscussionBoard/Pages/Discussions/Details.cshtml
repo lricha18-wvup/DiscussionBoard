@@ -1,20 +1,58 @@
-﻿@page "/Discussion/{threadId:int}"
+﻿@* @page "/Discussion/{threadId:int}" *@
+@* @model DiscussionBoard.Pages.Discussions.Details *@
+@* *@
+@* *@
+@* *@
+@* <!DOCTYPE html> *@
+@* *@
+@* <html> *@
+@* <head> *@
+@*     <title></title> *@
+@* </head> *@
+@* <body> *@
+@* <div> *@
+@* *@
+@*     <h1>@Model.Thread.Title</h1> *@
+@*     <p>@Model.Thread.Content</p> *@
+@*     <p>By @Model.Thread.ApplicationUser.UserName</p> *@
+@* *@
+@*     @if (User.Identity?.IsAuthenticated == true) *@
+@*     { *@
+@*         <form method="post" asp-page-handler="Reply" asp-route-threadId="@Model.Thread.Id"> *@
+@*             <textarea name="Input.Content" required maxlength="10000"></textarea> *@
+@*             <button type="submit">Reply to discussion</button> *@
+@*         </form> *@
+@*     } *@
+@* *@
+@*     @foreach (var root in Model.PostTree) *@
+@*     { *@
+@*         <partial name="/Pages/Discussions/_PostTree.cshtml" model="root" /> *@
+@*     } *@
+@* *@
+@* </div> *@
+@* </body> *@
+@* </html> *@
+
+@page "/Discussion/{threadId:int}"
+@using DiscussionBoard.Services
 @model DiscussionBoard.Pages.Discussions.Details
 
+@{
+    var author = Model.Thread.ApplicationUser;
+    bool configured = !string.IsNullOrWhiteSpace(author?.DisplayName);
+    string displayName = configured ? author!.DisplayName : "Unconfigured User";
+    string avatarPath = AvatarCatalog.ImagePath(configured ? author!.AvatarId : null);
+}
 
-
-<!DOCTYPE html>
-
-<html>
-<head>
-    <title></title>
-</head>
-<body>
-<div>
-
+<main>
     <h1>@Model.Thread.Title</h1>
+
+    <div class="d-flex align-items-center mb-2">
+        <img src="@avatarPath" alt="@displayName's avatar" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;" />
+        <span class="fw-bold">@displayName</span>
+    </div>
+
     <p>@Model.Thread.Content</p>
-    <p>By @Model.Thread.ApplicationUser.UserName</p>
 
     @if (User.Identity?.IsAuthenticated == true)
     {
@@ -24,11 +62,10 @@
         </form>
     }
 
-    @foreach (var root in Model.PostTree)
-    {
-        <partial name="/Pages/Discussions/_PostTree.cshtml" model="root" />
-    }
-
-</div>
-</body>
-</html>
+    <section aria-label="Discussion posts">
+        @foreach (var root in Model.PostTree)
+        {
+            <partial name="/Pages/Discussions/_PostTree.cshtml" model="root" />
+        }
+    </section>
+</main>
