@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using DiscussionBoard.Authorization;
 using DiscussionBoard.Models;
 using DiscussionBoard.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -12,11 +13,14 @@ public class Details : PageModel
     {
         private readonly DiscussionThreadService _threadService;
         private readonly PostService _postService;
+        private readonly IApplicationAuthorizationService _authorizationService;
+        public bool IsAbleToEditThread { get; set; }
 
-        public Details(DiscussionThreadService threadService, PostService postService)
+        public Details(DiscussionThreadService threadService, PostService postService, IApplicationAuthorizationService authorizationService)
         {
             _threadService = threadService;
             _postService = postService;
+            _authorizationService = authorizationService;
         }
 
         public DiscussionThread Thread { get; set; } = null!;
@@ -34,6 +38,9 @@ public class Details : PageModel
             }
 
             Thread = thread;
+
+            IsAbleToEditThread = await _authorizationService.CanEditAsync(User, thread);;
+
             var posts = await _postService.GetForThreadAsync(threadId);
             PostTree = PostTreeBuilder.Build(posts);
             return Page();

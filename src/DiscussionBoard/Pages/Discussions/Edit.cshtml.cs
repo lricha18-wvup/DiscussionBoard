@@ -1,5 +1,6 @@
 ﻿using System.Dynamic;
 using System.Security.Claims;
+using DiscussionBoard.Authorization;
 using DiscussionBoard.Models;
 using DiscussionBoard.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -9,26 +10,33 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace DiscussionBoard.Pages.Discussions
 {
     [Authorize]
-    public class Edit : PageModel
+    public class ThreadEditModel : PageModel
     {
         private readonly DiscussionThreadService _threadService;
+        private readonly IApplicationAuthorizationService _authorizationService;
 
-        public Edit(DiscussionThreadService threadService)
+        public ThreadEditModel(DiscussionThreadService threadService, IApplicationAuthorizationService authorizationService)
         {
             _threadService = threadService;
+            _authorizationService = authorizationService;
         }
 
         [BindProperty]
-        public EditModel Input { get; set; } = new();
+        public DiscussionEditViewModel Input { get; set; } = new();
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var thread = await _threadService.GetAsync(id);
 
-            if (thread == null || thread.ApplicationUserId != userId)
+            if (thread == null)
             {
                 return NotFound();
+            }
+
+            if (!await _authorizationService.CanEditAsync(User, thread))
+            {
+                return Forbid();
             }
 
             Input.Title = thread.Title;
@@ -38,17 +46,24 @@ namespace DiscussionBoard.Pages.Discussions
 
         public async Task<IActionResult> OnPostAsync(int id)
         {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
+
 
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var existing = await _threadService.GetAsync(id);
 
-            if (existing == null || existing.ApplicationUserId != userId)
+            if (existing == null)
             {
-                return Challenge();
+                return NotFound();
+            }
+
+            if (!await _authorizationService.CanEditAsync(User, existing))
+            {
+                return Forbid();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return Page();
             }
 
             var thread = new DiscussionThread
@@ -59,7 +74,7 @@ namespace DiscussionBoard.Pages.Discussions
             };
 
             await _threadService.UpdateAsync(thread);
-            return RedirectToPage("/Index");
+            return Redirect($"/Discussion/{thread.Id}");
         }
     }
 }

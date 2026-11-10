@@ -1,39 +1,4 @@
-﻿@* @page "/Discussion/{threadId:int}" *@
-@* @model DiscussionBoard.Pages.Discussions.Details *@
-@* *@
-@* *@
-@* *@
-@* <!DOCTYPE html> *@
-@* *@
-@* <html> *@
-@* <head> *@
-@*     <title></title> *@
-@* </head> *@
-@* <body> *@
-@* <div> *@
-@* *@
-@*     <h1>@Model.Thread.Title</h1> *@
-@*     <p>@Model.Thread.Content</p> *@
-@*     <p>By @Model.Thread.ApplicationUser.UserName</p> *@
-@* *@
-@*     @if (User.Identity?.IsAuthenticated == true) *@
-@*     { *@
-@*         <form method="post" asp-page-handler="Reply" asp-route-threadId="@Model.Thread.Id"> *@
-@*             <textarea name="Input.Content" required maxlength="10000"></textarea> *@
-@*             <button type="submit">Reply to discussion</button> *@
-@*         </form> *@
-@*     } *@
-@* *@
-@*     @foreach (var root in Model.PostTree) *@
-@*     { *@
-@*         <partial name="/Pages/Discussions/_PostTree.cshtml" model="root" /> *@
-@*     } *@
-@* *@
-@* </div> *@
-@* </body> *@
-@* </html> *@
-
-@page "/Discussion/{threadId:int}"
+﻿@page "/Discussion/{threadId:int}"
 @using DiscussionBoard.Services
 @model DiscussionBoard.Pages.Discussions.Details
 
@@ -61,6 +26,15 @@
             <button type="submit">Reply to discussion</button>
         </form>
     }
+
+    @if (Model.IsAbleToEditThread)
+    {
+        <a asp-page="/Discussions/ThreadEdit" asp-route-id="@Model.Thread.Id">
+            Edit thread
+        </a>
+    }
+
+
 
     <section aria-label="Discussion posts">
         @foreach (var root in Model.PostTree)

@@ -44,5 +44,24 @@ namespace DiscussionBoard.Services
                 throw;
             }
         }
+
+        public async Task<Post?> GetAsync(int id)
+        {
+            return await _postContext.Posts
+                .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
+        }
+
+        public async Task UpdateAsync(Post post)
+        {
+            var existingPost = await GetAsync(post.Id);
+
+            if (existingPost == null)
+                throw new KeyNotFoundException($"Post {post.Id} was not found.");
+
+            existingPost.Title = post.Title;
+            existingPost.Content = post.Content;
+
+            await _postContext.SaveChangesAsync();
+        }
     }
 }

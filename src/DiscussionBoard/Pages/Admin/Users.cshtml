@@ -1,0 +1,56 @@
+﻿@page
+@model DiscussionBoard.Pages.Admin.UsersModel
+
+<h1>Manage Users</h1>
+
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <p>@Model.SuccessMessage</p>
+}
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <p>@Model.ErrorMessage</p>
+}
+
+<form method="post" asp-page-handler="SelectUser">
+    <label>Select a user:</label>
+
+    <select name="selectedUserId">
+        <option value="">Choose a user</option>
+
+        @foreach (var user in Model.AllUsers)
+        {
+            <option value="@user.Id"
+                    selected="@(Model.SelectedUser?.Id == user.Id)">
+                @user.UserName
+            </option>
+        }
+    </select>
+
+    <button type="submit">Select</button>
+</form>
+
+@if (Model.SelectedUser != null)
+{
+    <h2>@Model.SelectedUser.UserName</h2>
+
+    @if (Model.SelectedUserIsAdmin)
+    {
+        <p>This user is an admin.</p>
+
+        <form method="post" asp-page-handler="Remove">
+            <input type="hidden" name="selectedUserId" value="@Model.SelectedUser.Id" />
+            <button type="submit">Remove Admin</button>
+        </form>
+    }
+    else
+    {
+        <p>This user is not an admin.</p>
+
+        <form method="post" asp-page-handler="Add">
+            <input type="hidden" name="selectedUserId" value="@Model.SelectedUser.Id" />
+            <button type="submit">Make Admin</button>
+        </form>
+    }
+}

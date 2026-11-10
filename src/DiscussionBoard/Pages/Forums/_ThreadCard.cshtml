@@ -21,4 +21,10 @@
 
     <h5><a asp-page="/Discussions/Details" asp-route-threadId="@Model.Id">@Model.Title</a></h5>
     <p class="mb-0">@Model.Content</p>
+
+    <a asp-page="/Discussions/Edit"
+       asp-route-id="@Model.Id"
+       class="btn btn-outline-primary mt-3">
+        Edit Thread
+    </a>
 </article>

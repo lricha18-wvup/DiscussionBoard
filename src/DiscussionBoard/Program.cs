@@ -1,8 +1,10 @@
+using DiscussionBoard.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using DiscussionBoard.Data;
 using DiscussionBoard.Models;
 using DiscussionBoard.Services;
+using Microsoft.AspNetCore.Authorization;
 using Serilog;
 using Serilog.Formatting.Compact;
 
@@ -10,7 +12,7 @@ namespace DiscussionBoard
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -35,17 +37,27 @@ namespace DiscussionBoard
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
-                    options.SignIn.RequireConfirmedAccount = !builder.Environment.IsDevelopment())
+                    options.SignIn.RequireConfirmedAccount = !builder.Environment.IsDevelopment()).AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             builder.Services.ConfigureApplicationCookie(options =>
             {
                 options.LoginPath = "/Identity/Account/Login";
             });
 
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy(
+                    ApplicationAuthorizationPolicies.IsOwnerOrAdmin,
+                    policy => policy.Requirements.Add(
+                        new IsOwnerOrAdminRequirement()));
+            });
+
             builder.Services.AddScoped<ForumService>();
             builder.Services.AddScoped<DiscussionThreadService>();
             builder.Services.AddScoped<PostService>();
             builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+            builder.Services.AddScoped<IApplicationAuthorizationService, ApplicationAuthorizationService>();
+            builder.Services.AddScoped<IAuthorizationHandler, IsOwnerOrAdminHandler>();
 
 
 
@@ -80,7 +92,22 @@ namespace DiscussionBoard
             app.MapRazorPages()
                 .WithStaticAssets();
 
+            if (args.Contains("--bootstrap-admin", StringComparer.Ordinal))
+            {
+                if (!app.Environment.IsDevelopment())
+                {
+                    throw new InvalidOperationException("This bootstrap tool is Development-only.");
+                }
+
+                await AdminBootstrapper.BootstrapAsync(
+                    app.Services,
+                    app.Configuration["BootstrapAdmin:Email"]
+                );
+                return;
+            }
+
             app.Run();
         }
     }
 }
+
