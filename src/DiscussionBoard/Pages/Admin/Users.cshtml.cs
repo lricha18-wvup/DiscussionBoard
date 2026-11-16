@@ -36,8 +36,10 @@ namespace DiscussionBoard.Pages.Admin
                 SelectedUser = await _userManager.FindByIdAsync(selectedUserId);
 
                 if (SelectedUser != null)
+                {
                     SelectedUserIsAdmin = await _userManager.IsInRoleAsync(
                         SelectedUser, ApplicationRoles.Admin);
+                }
             }
         }
 
@@ -52,9 +54,13 @@ namespace DiscussionBoard.Pages.Admin
                 User, selectedUserId, ApplicationRoles.Admin);
 
             if (result.Succeeded)
+            {
                 SuccessMessage = "Admin role added.";
+            }
             else
+            {
                 ErrorMessage = "Could not add admin role.";
+            }
 
             return RedirectToPage(new { selectedUserId });
         }
@@ -65,9 +71,13 @@ namespace DiscussionBoard.Pages.Admin
                 User, selectedUserId, ApplicationRoles.Admin);
 
             if (result.Succeeded)
+            {
                 SuccessMessage = "Admin role removed.";
+            }
             else
+            {
                 ErrorMessage = "Could not remove admin role.";
+            }
 
             return RedirectToPage(new { selectedUserId });
         }

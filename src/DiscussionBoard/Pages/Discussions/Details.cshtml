@@ -22,8 +22,8 @@
     @if (User.Identity?.IsAuthenticated == true)
     {
         <form method="post" asp-page-handler="Reply" asp-route-threadId="@Model.Thread.Id">
-            <textarea name="Input.Content" required maxlength="10000"></textarea>
-            <button type="submit">Reply to discussion</button>
+            <textarea class = "form-control" name="Input.Content" required maxlength="10000"></textarea>
+            <button  class="btn btn-primary" type="submit">Reply to discussion</button>
         </form>
     }
 

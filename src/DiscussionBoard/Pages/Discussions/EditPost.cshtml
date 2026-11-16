@@ -1,9 +1,7 @@
 ﻿@page "/Discussion/{threadId:int}/Post/Edit/{postId:int}"
 @model DiscussionBoard.Pages.Discussions.EditPostModel
 
-@{
-    Layout = null;
-}
+
 
 <!DOCTYPE html>
 
@@ -19,12 +17,12 @@
         <span asp-validation-for="Input.Title"></span>
     </div>
 
-    <div>
+    <div class = "mb-2">
         <label asp-for="Input.Content"></label>
         <textarea asp-for="Input.Content"></textarea>
         <span asp-validation-for="Input.Content"></span>
     </div>
 
-    <button type="submit">Save</button>
+    <button class="btn btn-primary" type="submit">Save</button>
 </form>
 </html>

@@ -82,6 +82,14 @@ namespace DiscussionBoard
 
             app.UseHttpsRedirection();
 
+            app.Use(async (context, next) =>
+            {
+                context.Response.Headers.Append(
+                    "Content-Security-Policy",
+                    "default-src 'self'; frame-ancestors 'self'; form-action 'self'");
+                await next();
+            });
+
             app.UseRouting();
 
             app.UseAuthentication();
